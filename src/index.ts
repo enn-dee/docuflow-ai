@@ -8,11 +8,20 @@ import fs from "node:fs"
 const PORT = 3000
 const app = express();
 const location = path.join(__dirname,"../public/uploads")
-const upload = multer({dest: location})
 
+const storage = multer.diskStorage({
+    destination: function(req, file, cb){
+        cb(null, location)
+    },
+    filename: function(req, file,cb){
+        const pref = Date.now()+'-'+Math.round(Math.random()* 1E4)
+        cb(null, pref+"-"+file.originalname)
+    }
+})
+
+const upload = multer({storage})
 
 app.use(cors())
-
 
 
 app.post("/api/upload",upload.single("file-upload"),async(req: Request, res: Response)=>{
@@ -31,10 +40,11 @@ app.get("/api/read/:filename", async(req: Request, res: Response)=>{
         const filePath = path.join(__dirname,`../public/uploads/${filename}`)
         
         if(!fs.existsSync(filePath)){
-            return res.status(200).json({msg: "file not found"})
+            return res.status(404).json({msg: "file not found"})
         }
 
         const  dataBuffer = fs.readFileSync(filePath)
+        
         const data = await pdf(dataBuffer)
         return res.status(200).json({msg:"Success", pdfText: data})
     }
