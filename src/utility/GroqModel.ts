@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { groq_Key } from "./process.env";
+import { groq_Key } from "../config/process.env";
 
 const GROQ_API_KEY = groq_Key;
 

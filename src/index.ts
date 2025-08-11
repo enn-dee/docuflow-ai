@@ -6,56 +6,16 @@ import pdf from "pdf-parse"
 import fs from "node:fs"
 import {CloudinaryStorage} from "multer-storage-cloudinary"
 import askGroq from "./utility/GroqModel";
-import cloudinary from "./utility/CloudinaryConf";
+import cloudinary, { upload } from "./config/CloudinaryConf";
 
 const PORT = 3000
 const app = express();
 const location = path.join(__dirname,"../public/uploads")
 
-// const storage = multer.diskStorage({
-//     destination: function(req, file, cb){
-//         cb(null, location)
-//     },
-//     filename: function(req, file,cb){
-//         const pref = Date.now()+'-'+Math.round(Math.random()* 1E4)
-//         cb(null, pref+"-"+file.originalname)
-//     }
-// })
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: async (req, file) => {
-    return {
-      folder: "ai_resume",
-      resource_type: "raw",
-      format: "pdf",
-      public_id: file.originalname.split(".")[0],
-    };
-  },
-});
-
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype === "application/pdf") {
-      cb(null, true);
-    } else {
-      cb(new Error("Only PDF files are allowed") as any, false);
-    }
-  },
-});
-
-// const upload = multer({storage:storage})
 
 app.use(cors())
 
 
-// app.post("/api/upload", upload.single("file-upload"), (req, res) => {
-//   console.log("File object:", req.file); 
-//   if (!req.file) {
-//     return res.status(400).json({ msg: "No file uploaded" });
-//   }
-//   res.json({ url: req.file.path }); 
-// });
 
 app.post("/api/upload", (req, res, next) => {
   upload.single("file-upload")(req, res, (err: any) => {
@@ -74,7 +34,7 @@ app.post("/api/upload", (req, res, next) => {
 
 app.get("/api/read/:filename", async(req: Request, res: Response)=>{
     try{
-        console.log("hiiii")
+        
         const filename = req.params.filename
         const filePath = path.join(__dirname,`../public/uploads/${filename}`)
         
@@ -99,6 +59,11 @@ app.get("/api/read/:filename", async(req: Request, res: Response)=>{
     }
 })
 
+app.get("/api/pdfs",async (req, res)=>{
+ 
+  const data =await cloudinary.api.resources({max_results:10}).then(pdf=>pdf)
+  return res.status(200).json({entries:data})
+})
 app.listen(PORT, ()=>{
     console.log(`Server listening at port ${PORT}`)
 })
