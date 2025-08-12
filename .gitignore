@@ -3,3 +3,5 @@
 /frontend
 /public
 .env
+combined.log
+error.log
