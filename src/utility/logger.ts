@@ -1,7 +1,7 @@
 const winston = require('winston');
 const path = require('path');
 
-const errorLogFile = path.join(__dirname, `error-${new Date().toISOString().split('T')[0]}.log`);
+// const errorLogFile = path.join(__dirname, `error-${new Date().toISOString().split('T')[0]}.log`);
 
  const logger = winston.createLogger({
   level: 'info',
@@ -11,7 +11,7 @@ const errorLogFile = path.join(__dirname, `error-${new Date().toISOString().spli
   ),
   defaultMeta: { service: 'user-service' },
   transports: [
-    new winston.transports.File({ filename: errorLogFile, level: 'error' }),
+    // new winston.transports.File({ filename: errorLogFile, level: 'error' }),
     new winston.transports.File({ filename: 'combined.log' }),
   ],
 });

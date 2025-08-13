@@ -5,3 +5,5 @@
 .env
 combined.log
 error.log
+/src/generated/prisma
+/prisma/migrations

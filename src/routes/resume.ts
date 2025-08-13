@@ -1,9 +1,10 @@
 import express from "express"
 import { GetPdf, ReadPdf, UploadPdf } from "../controller/resume";
+import { authMiddleware } from "../utility/authMiddleware";
+import { upload } from "../config/CloudinaryConf";
 const router = express.Router();
 
-router.post("/upload",UploadPdf);
-
+router.post("/upload",authMiddleware,UploadPdf);
 
 router.get("/api/read/:filename",ReadPdf)
 

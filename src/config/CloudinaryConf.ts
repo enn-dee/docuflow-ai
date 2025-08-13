@@ -23,6 +23,7 @@ export const storage = new CloudinaryStorage({
 
 export const upload = multer({
   storage,
+  limits:{fileSize:10*1024*1024},
   fileFilter: (req, file, cb) => {
     if (file.mimetype === "application/pdf") {
       cb(null, true);
@@ -32,4 +33,10 @@ export const upload = multer({
   },
 });
 
+
+// local storage testing..
+
+// export const upload = multer ({
+//   dest:__dirname+"/uploads/"
+// })
 export default cloudinary

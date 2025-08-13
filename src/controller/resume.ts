@@ -5,20 +5,43 @@ import fs from "node:fs"
 import askGroq from "../utility/GroqModel";
 import path from "node:path"
 import logger from "../utility/logger";
+import { PrismaClient } from "../generated/prisma";
+import { authRequest } from "../utility/authRequest";
+const prisma = new PrismaClient()
 
-export  const UploadPdf = (req:Request, res: Response, next:NextFunction) => {
-  upload.single("file-upload")(req, res, (err: any) => {
+
+export const UploadPdf = (req: authRequest, res: Response, next: NextFunction) => {
+  upload.single("file-upload")(req, res, async (err: any) => {
     if (err) {
-      logger.error("upload error: ", err);
+      logger.error("upload error:", err);
       return res.status(500).json({ msg: "Upload failed", error: err.message });
     }
     if (!req.file) {
       return res.status(400).json({ msg: "No file uploaded" });
     }
-    logger.info('file uploaded')
-    res.json({ url: req.file.path });
+
+    try {
+      logger.info("file uploaded");
+      const url = req.file.path;
+
+      const newPdf = await prisma.pdf.create({
+        data: {
+          url,
+          user: {
+            connect: { id: req.user?.userId }
+          }
+        }
+      });
+
+      res.json({ url, newPdf });
+    } catch (dbErr) {
+      logger.error("DB error in /upload:", dbErr);
+      res.status(500).json({ error: (dbErr as Error).message });
+    }
   });
-}
+};
+
+
 
 
 export const ReadPdf = async(req: Request, res: Response)=>{

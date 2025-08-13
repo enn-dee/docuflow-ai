@@ -1,0 +1,69 @@
+import { Request, Response } from "express";
+import bcrypt from "bcryptjs"
+import logger from "../utility/logger";
+import { PrismaClient } from "../generated/prisma";
+import jwt from "jsonwebtoken";
+import { jwt_secret } from "../config/process.env";
+
+
+const prisma = new PrismaClient()
+
+export const Signup = async(req:Request, res: Response)=>{
+    try{
+
+        const {username, password} = req.body
+        
+        const salt = await bcrypt.genSalt(10)
+        const hashPassword =await bcrypt.hash(password, salt)
+
+
+        const existingUser = await prisma.user.findUnique({
+        where: { username }
+        });
+
+        if (existingUser) {
+            return res.status(400).json({ error: "Username already taken" });
+        }
+
+        const user = await prisma.user.create({
+            data:{username,password:hashPassword}
+        })
+        
+        console.log(username, hashPassword, 'created user: ', user)
+        return res.status(200).json({msg:"User created"})
+
+    }catch(err:any){
+        logger.error(`error occured in /signup: ${err}`)
+        return res.status(500).json({error:err.message})
+    }
+}
+
+export const Signin = async(req:Request, res:Response)=>{
+    try{
+        const {username, password} = req.body
+
+        const existingUser = await prisma.user.findUnique({
+            where:{username}
+        })
+
+        if(!existingUser){
+            return res.status(400).json({error:"Invalid username"})
+        }
+
+        const isMatch:boolean = await bcrypt.compare(password,existingUser.password)
+
+        if(!isMatch){
+            return res.status(400).json({error:"Invalid password"})
+        }
+
+        const token = jwt.sign(
+            {userId: existingUser.id, username:existingUser.username},
+            jwt_secret || "jwt_secret", {expiresIn:'1hr'}
+        )
+
+        return res.status(200).json({success:"LoggedIn", token})
+    }catch(err:any){
+          logger.error(`error occured in /signin: ${err}`)
+        return res.status(500).json({error:err.message})
+    }
+}
