@@ -1,5 +1,5 @@
-import express, { NextFunction, Request, Response } from "express"
-import cloudinary, { upload } from "../config/CloudinaryConf";
+import { NextFunction, Request, Response } from "express"
+import  { upload } from "../config/CloudinaryConf";
 import pdf from "pdf-parse"
 import fs from "node:fs"
 import askGroq from "../utility/GroqModel";
@@ -7,6 +7,10 @@ import path from "node:path"
 import logger from "../utility/logger";
 import { PrismaClient } from "../generated/prisma";
 import { authRequest } from "../utility/authRequest";
+import axios from "axios";
+
+
+
 const prisma = new PrismaClient()
 
 
@@ -73,15 +77,72 @@ export const ReadPdf = async(req: Request, res: Response)=>{
 }
 
 
-export const GetPdf = async (req: Request, res:Response)=>{
-//  get pdf urls based on username 
-  const data =await cloudinary.api.resources({    
-    type:"upload",
-    prefix:'ai_resume/',
-    resource_type:"raw",
-    max_results:10,
+export const GetPdf = async (req: authRequest, res:Response)=>{
+try{
 
+  const pdfs = await prisma.pdf.findMany({
+    where:{userId:req.user?.id},
+    omit:{userId:true}
   })
+    return res.status(200).json({pdfs})
+      }catch(err:any){
 
-  return res.status(200).json({entries:data.resources})
-}
+      logger.error("error in getpdf: ", err)
+      return res.status(500).json({error:err})
+      
+      }
+
+    }
+
+
+export const downloadPdf = async (req: authRequest, res: Response) => {
+  try {
+    const pdfId = parseInt(req.params.id, 10);
+    if (isNaN(pdfId)) {
+      return res.status(400).json({ error: "Invalid PDF ID" });
+    }
+
+    const pdfRecord = await prisma.pdf.findUnique({ where: { id: pdfId } });
+    if (!pdfRecord) {
+      return res.status(404).json({ error: "Pdf not found" });
+    }
+
+    // full file path with filename
+    const tempPath = path.join(__dirname, "../../tmp", `${pdfId}.pdf`);
+    const tmpDir = path.dirname(tempPath);
+    if (!fs.existsSync(tmpDir)) {
+      fs.mkdirSync(tmpDir, { recursive: true });
+    }
+
+    const response: Axios.AxiosXHR<NodeJS.ReadableStream> = await axios({
+      url: pdfRecord.url,
+      method: "GET",
+      responseType: "stream",
+    });
+
+    const fileStream = fs.createWriteStream(tempPath);
+    await new Promise<void>((resolve, reject) => {
+      (response.data as NodeJS.ReadableStream).pipe(fileStream);
+      response.data.on("error", reject);
+      fileStream.on("finish", resolve);
+    });
+// pdf processing
+
+    console.log(`PDF saved locally at ${tempPath}`);
+
+
+    fs.unlink(tempPath, (err) => {
+  if (err) {
+    console.error(`Failed to delete ${tempPath}:`, err);
+  } else {
+    console.log(`Deleted ${tempPath} after processing`);
+  }
+});
+
+    res.json({ message: "PDF processed successfully" });
+
+  } catch (err: any) {
+    logger.error("error in download pdf: ", err);
+    return res.status(500).json({ error: err.message || err });
+  }
+};
