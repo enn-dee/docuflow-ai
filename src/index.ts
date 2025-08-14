@@ -1,7 +1,7 @@
 import express from "express"
 import cors from "cors"
-import router from "./routes/resume";
-import userRouter from "./routes/user";
+import router from "./routes/resume.route";
+import userRouter from "./routes/user.route";
 
 const PORT = 3000
 const app = express();

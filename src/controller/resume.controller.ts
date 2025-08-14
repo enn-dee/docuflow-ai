@@ -39,7 +39,7 @@ export const UploadPdf = (req: authRequest, res: Response, next: NextFunction) =
       console.log('current user: ', req.user?.id)
       const all_pdfs = (await getPdf(req.user?.userId)).message
 
-      res.json({newPdf, allPdfs });
+      res.json({newPdf, all_pdfs });
 
     } catch (dbErr) {
       logger.error("DB error in /upload:", dbErr);

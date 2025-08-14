@@ -7,8 +7,9 @@ async function askGroq(resumeContent: string, jobDescription?:string) {
 
 
 const prompt: string = `
-
 You are an Applicant Tracking System (ATS) and professional resume coach.
+Analyze the resume and job description.
+Return ONLY valid JSON — no explanation, no extra text :
 
 Your tasks:
 1. Evaluate the following resume against the provided job description.
@@ -22,24 +23,15 @@ Your tasks:
 5. Rewrite **2–3 weak bullet points** from the resume to be more impactful and results-focused.
 
 Format your output as:
-
-ATS Score: [score]/100
-
-Missing Keywords:
-- keyword1
-- keyword2
-...
-
-Improvements:
-- improvement1
-- improvement2
-...
-
-Improved Bullet Points:
-- old: "..."
-  new: "..."
-- old: "..."
-  new: "..."
+{
+  "ATS_Score": [score]/100,
+  "missingKeywords": ["string", "string",...],
+  "improvements": ["string", "string",...],
+  "improvedBulletPoints": [
+    { "old": "string", "new": "string" },
+    { "old": "string", "new": "string" }
+  ]
+}
 
 Resume Text:
 ${resumeContent}
@@ -47,6 +39,27 @@ ${resumeContent}
 Job Description:
 ${jobDescription}
 `
+
+
+// const prompt = `
+// Analyze the resume and job description.
+// Return ONLY valid JSON — no explanation, no extra text — in this format:
+// {
+//   "score": number,
+//   "missingKeywords": ["string", "string"],
+//   "improvements": ["string", "string"],
+//   "improvedBulletPoints": [
+//     { "old": "string", "new": "string" },
+//     { "old": "string", "new": "string" }
+//   ]
+// }
+
+// Resume:
+// ${resumeContent}
+
+// Job Description:
+// ${jobDescription}
+// `;
 
 
 
@@ -58,7 +71,8 @@ ${jobDescription}
     },
     body: JSON.stringify({
       model: "llama3-70b-8192", // high-quality, free
-      messages: [{ role: "user", content: prompt }]
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" }
     })
   });
 

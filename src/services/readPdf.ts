@@ -25,10 +25,10 @@ export const readPdf = async(filePath:string, jobDescription: string):Promise<re
         })
 
         const aiRes = await askGroq(data,jobDescription )
+        const result = JSON.parse(aiRes)
+        logger.info(`ai res: ${result}`)
         
-        logger.info(`ai res: ${aiRes}`)
-        
-        return {status:true, message:aiRes}
+        return {status:true, message:result}
     }
     catch(error: any){
         logger.error("error in read pdf func: ", error)

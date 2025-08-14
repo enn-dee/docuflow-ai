@@ -1,5 +1,5 @@
 import express from "express"
-import {   allPdfs, processPdf, UploadPdf } from "../controller/resume";
+import {   allPdfs, processPdf, UploadPdf } from "../controller/resume.controller";
 import { authMiddleware } from "../utility/authMiddleware";
 const router = express.Router();
 
