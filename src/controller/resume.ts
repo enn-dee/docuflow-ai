@@ -51,6 +51,7 @@ export const UploadPdf = (req: authRequest, res: Response, next: NextFunction) =
 
 export const processPdf = async (req: authRequest, res: Response) => {
   try {
+    const {jobDescription} = req.body;
     const pdfId = parseInt(req.params.id, 10);
     if (isNaN(pdfId)) {
       return res.status(400).json({ error: "Invalid PDF ID" });
@@ -80,7 +81,7 @@ export const processPdf = async (req: authRequest, res: Response) => {
       fileStream.on("finish", resolve);
     });
 
-   const ai_res= await readPdf(tempPath)
+   const ai_res= await readPdf(tempPath, jobDescription)
    console.log(`ai response: ${ai_res}`) 
    console.log(`PDF saved locally at ${tempPath}`);
 

@@ -9,7 +9,7 @@ status:boolean,
 message: string
 }
 
-export const readPdf = async(filePath:string):Promise<returnResponse>=>{
+export const readPdf = async(filePath:string, jobDescription: string):Promise<returnResponse>=>{
     try{
         
         // const filePath = path.join(__dirname,`../../tmp/${filename}`)
@@ -24,7 +24,7 @@ export const readPdf = async(filePath:string):Promise<returnResponse>=>{
             return String(response.text)
         })
 
-        const aiRes = await askGroq(data, 'need fullstack developer having 1 year experince')
+        const aiRes = await askGroq(data,jobDescription )
         
         logger.info(`ai res: ${aiRes}`)
         
