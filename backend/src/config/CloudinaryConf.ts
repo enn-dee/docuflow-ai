@@ -1,5 +1,5 @@
 import {v2 as cloudinary} from "cloudinary"
-import { cloudinary_key, cloudinary_name, cloudinary_secret } from "../config/process.env"
+import { cloudinary_key, cloudinary_name, cloudinary_secret } from "./process.env"
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import multer from "multer";
 

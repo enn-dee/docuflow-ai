@@ -1,6 +1,5 @@
 /build
 /node_modules
-/frontend
 /public
 .env
 combined.log

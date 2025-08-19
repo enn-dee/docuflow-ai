@@ -11,6 +11,7 @@ import { getPdf } from "../services/getPdf";
 
 
 
+
 const prisma = new PrismaClient()
 
 
@@ -68,7 +69,7 @@ export const processPdf = async (req: authRequest, res: Response) => {
       fs.mkdirSync(tmpDir, { recursive: true });
     }
 
-    const response: Axios.AxiosXHR<NodeJS.ReadableStream> = await axios({
+    const response: any = await axios({
       url: pdfRecord.url,
       method: "GET",
       responseType: "stream",
