@@ -4,12 +4,37 @@ import { Label } from "../ui/label"
 import { motion } from "motion/react"
 import toast from "react-hot-toast"
 import { useNavigate } from "react-router-dom"
+import { QueryClient, useMutation } from "@tanstack/react-query"
 
 function SignIn() {
     const [username, setUsername] = useState<string>("")
     const [password, setPassword] = useState<string>("")
-    const navigate = useNavigate()
 
+    const navigate = useNavigate()
+    const queryClient = new QueryClient();
+
+    const mutation = useMutation({
+        mutationFn: async () => {
+            const res = await fetch("http://localhost:3000/api/signin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password }),
+            })
+            if (!res.ok) throw new Error("Sign in failed")
+            const data = await res.json()
+            console.log("res: ", data)
+            localStorage.setItem("token", data.token)
+            return data
+        },
+        onSuccess: () => {
+            toast.success("Logged in")
+            queryClient.invalidateQueries({ queryKey: ["users"] })
+            navigate("/home")
+        },
+        onError: (err: any) => {
+            toast.error(err.message || "Something went wrong")
+        }
+    })
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         try {
@@ -17,11 +42,9 @@ function SignIn() {
             if (!username.trim() || !password.trim()) {
                 return toast.error("Fields required")
             }
-            else {
-                toast.success("Registered Successfully")
-                navigate("/signin")
-                return
-            }
+
+            mutation.mutate()
+
         } catch (err: any) {
             toast.error(err.message)
         } finally {
@@ -33,7 +56,7 @@ function SignIn() {
 
     return (
         <motion.section
-            className="w-screen h-screen flex flex-col items-center justify-center 
+            className="w-full h-screen flex flex-col items-center justify-center 
                  bg-gradient-to-bl from-[#1565c0]/50 to-[#2e294e]/80 p-6"
         >
             <motion.h1
@@ -93,10 +116,11 @@ function SignIn() {
                     {/* Submit */}
                     <button
                         type="submit"
+                        disabled={mutation.isPending}
                         className="w-full rounded-md bg-indigo-500/80 hover:bg-indigo-500 
-                     px-4 py-2 text-white font-medium transition-colors"
+              px-4 py-2 text-white font-medium transition-colors disabled:opacity-50"
                     >
-                        Sign In
+                        {mutation.isPending ? "Signing in..." : "Sign in"}
                     </button>
                     <div className="text-center text-white/80 space-y-1.5">
                         <hr />
