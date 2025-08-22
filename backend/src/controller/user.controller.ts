@@ -58,7 +58,7 @@ export const Signin = async(req:Request, res:Response)=>{
 
         const token = jwt.sign(
             {userId: existingUser.id, username:existingUser.username},
-            jwt_secret || "jwt_secret", {expiresIn:'1hr'}
+            jwt_secret || "jwt_secret", {expiresIn:'1h'}
         )
 
         return res.status(200).json({success:"LoggedIn", token})

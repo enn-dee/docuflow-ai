@@ -37,7 +37,6 @@ export const UploadPdf = (req: authRequest, res: Response, next: NextFunction) =
           }
         }
       });
-      console.log('current user: ', req.user?.id)
       const all_pdfs = (await getPdf(req.user?.userId)).message
 
       res.json({newPdf, all_pdfs });
