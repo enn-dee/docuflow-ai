@@ -1,5 +1,4 @@
-import path from "node:path"
-import fs from "node:fs"
+import fs from "fs"
 import askGroq from "../utility/GroqModel"
 import pdf from "pdf-parse"
 import logger from "../utility/logger"

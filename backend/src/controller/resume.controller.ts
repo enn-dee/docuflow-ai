@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import  { upload } from "../config/CloudinaryConf";
-import fs from "node:fs"
-import path from "node:path"
+import fs from "fs"
+import path from "path"
 import logger from "../utility/logger";
 import { PrismaClient } from "../generated/prisma";
 import { authRequest } from "../utility/authRequest";
