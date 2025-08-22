@@ -1,4 +1,5 @@
 import { motion } from "motion/react"
+import { useNavigate } from "react-router-dom"
 // const Homepage = () => {
 //   return (
 //     <section>
@@ -32,6 +33,13 @@ import { motion } from "motion/react"
 // export default Homepage
 
 export default function HomePage() {
+  const navigate = useNavigate()
+
+  const isAuth = localStorage.getItem("token")
+
+  const takeHome = () => {
+    isAuth ? navigate("/home") : navigate("/signin")
+  }
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-blue-50 to-white text-gray-800">
 
@@ -50,11 +58,12 @@ export default function HomePage() {
             Upload your resume and let AI optimize it for ATS, recruiters, and job success.
           </p>
           <motion.button className="mt-6 px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow"
-          // initial={{ filter: "blur(14px)" }}
-          // whileInView={{ filter: "blur(0)" }}
-          // transition={{ duration: 1, ease: "easeInOut" }}
+            // initial={{ filter: "blur(14px)" }}
+            // whileInView={{ filter: "blur(0)" }}
+            // transition={{ duration: 1, ease: "easeInOut" }}
+            onClick={takeHome}
           >
-            Get Started Free
+            {isAuth ? "Dashboard" : " Get Started Free"}
           </motion.button>
         </div>
         <motion.img
@@ -134,7 +143,9 @@ export default function HomePage() {
           viewport={{ once: true }}
         >Ready to Land Your Dream Job?</motion.h3>
         <p className="mt-4 text-lg">Let AI help you build the perfect resume today.</p>
-        <button className="mt-6 px-8 py-3 bg-white text-indigo-600 font-semibold rounded-xl hover:bg-gray-100">
+        <button className="mt-6 px-8 py-3 bg-white text-indigo-600 font-semibold rounded-xl hover:bg-gray-100"
+          onClick={takeHome}
+        >
           Get Started
         </button>
       </section>

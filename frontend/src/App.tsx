@@ -6,6 +6,7 @@ import SignIn from "./components/pages/Signin"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import ProtectedRoute from "./components/pages/ProtectedRoute"
 import Navbar from "./components/layout/Navbar"
+import Dashboard from "./components/pages/Dashboard"
 function App() {
 
   const queryClient = new QueryClient()
@@ -24,10 +25,11 @@ function App() {
             path="/home"
             element={
               <ProtectedRoute>
-                <Homepage />
+                <Dashboard />
               </ProtectedRoute>
             }
           />
+          {/* <Route path="/home" element={<Dashboard/>}/> */}
         </Routes>
       </div>
 

@@ -4,17 +4,17 @@ import { Label } from "../ui/label"
 import { motion } from "motion/react"
 import toast from "react-hot-toast"
 import { useNavigate } from "react-router-dom"
-import {  useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 function SignIn() {
-    const [username, setUsername] = useState<string>("")
-    const [password, setPassword] = useState<string>("")
+    const [username, setUsername] = useState("")
+    const [password, setPassword] = useState("")
 
     const navigate = useNavigate()
-    const queryClient =useQueryClient()
+    const queryClient = useQueryClient()
 
     const mutation = useMutation({
-        mutationFn: async () => {
+        mutationFn: async ({ username, password }: { username: string; password: string }) => {
             const res = await fetch("http://localhost:3000/api/signin", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -22,12 +22,11 @@ function SignIn() {
             })
             if (!res.ok) throw new Error("Sign in failed")
             const data = await res.json()
-            console.log("res: ", data)
             localStorage.setItem("token", data.token)
             return data
         },
         onSuccess: () => {
-            toast.success("Logged in")
+            toast.success("Welcome back 👋")
             queryClient.invalidateQueries({ queryKey: ["users"] })
             navigate("/home")
         },
@@ -35,114 +34,98 @@ function SignIn() {
             toast.error(err.message || "Something went wrong")
         }
     })
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        if (!username.trim() || !password.trim()) return toast.error("Fields required")
+
         try {
-
-            if (!username.trim() || !password.trim()) {
-                return toast.error("Fields required")
-            }
-            
-            mutation.mutate()
-
+            await mutation.mutateAsync({ username, password })
         } catch (err: any) {
             toast.error(err.message)
         } finally {
             setUsername("")
             setPassword("")
         }
-
     }
 
     return (
         <motion.section
-            className="w-full h-screen flex flex-col items-center justify-center 
-                 bg-gradient-to-bl from-[#1565c0]/50 to-[#2e294e]/80 p-6"
+            className="min-h-screen flex items-center justify-center 
+        bg-gradient-to-br from-indigo-800 via-purple-800 to-pink-700
+        px-6 py-12"
         >
-            <motion.h1
-                className="text-center text-3xl font-semibold text-[#e9ecef] mb-6"
-                initial={{ filter: "blur(20px)" }}
-                whileInView={{ filter: "blur(0)", transition: { duration: 1 } }}
-            >
-                Signin
-            </motion.h1>
-            <div className=" w-screen h-screen flex flex-col md:flex-row justify-center items-center space-y-1.5 md:space-x-1.5">
+            <div className="w-full max-w-6xl flex flex-col md:flex-row items-center gap-10">
 
+                {/*  Illustration + tagline */}
+                <motion.div
+                    className="flex flex-1 flex-col text-white text-center md:text-left space-y-6"
+                    initial={{ opacity: 0, x: -80 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                >
+                    <img src="/sign-in.svg" alt="Sign In Illustration" className="hidden md:flex w-2/3 mx-auto md:mx-0" />
+                    <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
+                        Welcome Back, <br />
+                        <span className="text-yellow-300">Let’s Continue Your Journey</span>
+                    </h1>
+                    <p className="text-lg text-gray-200 max-w-md">
+                        Log in to access your personalized dashboard, AI resume tools, and job-matching insights.
+                    </p>
+                </motion.div>
+
+                {/* SignIn form */}
                 <motion.form
                     onSubmit={handleSubmit}
-                    className="max-w-96 md:w-1/2 space-y-4 p-6 rounded-xl 
-                   bg-white/20 backdrop-blur-md border border-white/30
-                   shadow-xl shadow-black/20 "
-                    initial={{ y: 100, opacity: 0 }}
-                    whileInView={{
-                        y: 0,
-                        opacity: 1,
-                        transition: { duration: 0.8, ease: 'easeInOut' },
-                    }}
+                    className="flex-1 bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-8 space-y-6"
+                    initial={{ opacity: 0, x: 80 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, ease: "easeInOut" }}
                 >
-                    {/* Username */}
+                    <h2 className="text-2xl font-bold text-gray-800 text-center">Sign In</h2>
+                    <p className="text-center text-gray-500">Good to see you again 👋</p>
+
                     <div className="space-y-1.5">
-                        <Label htmlFor="username" className="font-mono text-lg text-white/90">
-                            Username
-                        </Label>
+                        <Label htmlFor="username" className="text-gray-700 font-medium">Username</Label>
                         <Input
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             id="username"
-                            className="w-full rounded-md border border-white/40 bg-white/20 
-                       px-3 py-2 text-white placeholder:text-white/60 
-                       focus:outline-none focus:ring-2 focus:ring-indigo-400"
                             placeholder="Enter your username"
+                            className="w-full rounded-md border border-gray-300 px-3 py-2 
+                focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                     </div>
 
-                    {/* Password */}
                     <div className="space-y-1.5">
-                        <Label htmlFor="password" className="font-mono text-lg text-white/90">
-                            Password
-                        </Label>
+                        <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
                         <Input
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             id="password"
                             type="password"
-                            className="w-full rounded-md border border-white/40 bg-white/20 
-                       px-3 py-2 text-white placeholder:text-white/60 
-                       focus:outline-none focus:ring-2 focus:ring-indigo-400"
                             placeholder="••••••••"
+                            className="w-full rounded-md border border-gray-300 px-3 py-2 
+                focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                     </div>
 
-                    {/* Submit */}
                     <button
                         type="submit"
                         disabled={mutation.isPending}
-                        className="w-full rounded-md bg-indigo-500/80 hover:bg-indigo-500 
-              px-4 py-2 text-white font-medium transition-colors disabled:opacity-50"
+                        className="w-full rounded-md bg-indigo-600 hover:bg-indigo-700 
+              px-4 py-2 text-white font-medium transition disabled:opacity-50"
                     >
-                        {mutation.isPending ? "Signing in..." : "Sign in"}
+                        {mutation.isPending ? "Signing in..." : "Sign In"}
                     </button>
-                    <div className="text-center text-white/80 space-y-1.5">
-                        <hr />
-                        <p>Create new account ? <a href="/Signup" className="underline">Signup</a></p>
-                    </div>
+
+                    <p className="text-center text-gray-600">
+                        Don’t have an account?{" "}
+                        <a href="/signup" className="text-indigo-600 underline hover:text-indigo-800">
+                            Signup
+                        </a>
+                    </p>
                 </motion.form>
-
-
-
-                {/* Right: Visual */}
-                <motion.div className="md:h-80 max-w-96 md:w-1/2 flex flex-col items-center justify-center bg-[#0c1821]/60 text-white p-10 rounded-md "
-                    initial={{ x: 100, opacity: 0 }}
-                    whileInView={{
-                        x: 0,
-                        opacity: 1,
-                        transition: { duration: 0.8, ease: 'easeInOut' },
-                    }}
-                >
-                    <img src="/sign-in.svg" alt="signin illustration" className="w-1/2" />
-
-                    <p className="text-lg text-gray-300 mt-2">Good to see you again! Let’s get started.</p>
-                </motion.div>
             </div>
         </motion.section>
     )
