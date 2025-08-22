@@ -4,14 +4,14 @@ import { Label } from "../ui/label"
 import { motion } from "motion/react"
 import toast from "react-hot-toast"
 import { useNavigate } from "react-router-dom"
-import { QueryClient, useMutation } from "@tanstack/react-query"
+import {  useMutation, useQueryClient } from "@tanstack/react-query"
 
 function SignIn() {
     const [username, setUsername] = useState<string>("")
     const [password, setPassword] = useState<string>("")
 
     const navigate = useNavigate()
-    const queryClient = new QueryClient();
+    const queryClient =useQueryClient()
 
     const mutation = useMutation({
         mutationFn: async () => {
@@ -42,7 +42,7 @@ function SignIn() {
             if (!username.trim() || !password.trim()) {
                 return toast.error("Fields required")
             }
-
+            
             mutation.mutate()
 
         } catch (err: any) {

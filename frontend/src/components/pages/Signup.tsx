@@ -43,6 +43,10 @@ function Signup() {
     if (!username.trim() || !password.trim()) {
       return toast.error("Fields required")
     }
+    if (password.length < 6) {
+      return toast.error("Password must be at least 6 characters");
+    }
+
     mutation.mutate()
   }
 
