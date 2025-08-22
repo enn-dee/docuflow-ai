@@ -76,7 +76,7 @@ ${jobDescription}
     })
   });
 
-  const data = await res.json();
+  const data:any = await res.json();
  return data.choices[0].message.content
 }
 
