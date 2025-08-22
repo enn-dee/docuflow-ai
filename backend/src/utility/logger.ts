@@ -1,6 +1,4 @@
-const winston = require('winston');
-const path = require('path');
-
+import winston from "winston"
 // const errorLogFile = path.join(__dirname, `error-${new Date().toISOString().split('T')[0]}.log`);
 
  const logger = winston.createLogger({
