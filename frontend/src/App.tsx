@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom"
+import { Routes, Route, useNavigate } from "react-router-dom"
 import Signup from "./components/pages/Signup"
 import Homepage from "./components/pages/Homepage"
 import { Toaster } from "react-hot-toast"
@@ -8,10 +8,24 @@ import ProtectedRoute from "./components/pages/ProtectedRoute"
 import Navbar from "./components/layout/Navbar"
 import Dashboard from "./components/pages/Dashboard"
 import Analyze from "./components/pages/Analyze"
+import { useEffect } from "react"
+
 function App() {
+  const navigate = useNavigate()
 
   const queryClient = new QueryClient()
+  useEffect(() => {
+    const expiry = localStorage.getItem("expiry")
+    if (expiry && Date.now() > Number(expiry)) {
+      logoutUser()
+    }
+  }, [])
 
+  function logoutUser() {
+    localStorage.removeItem("token")
+    localStorage.removeItem("expiry")
+    navigate("/")
+  }
   return (
     <QueryClientProvider client={queryClient}>
 
@@ -23,10 +37,10 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/home" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
           />
 
           <Route path="/pdf/:id" element={

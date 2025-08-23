@@ -13,6 +13,8 @@ function SignIn() {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
 
+    const tokenExpireIn = 3600 * 1000;
+
     const mutation = useMutation({
         mutationFn: async ({ username, password }: { username: string; password: string }) => {
             const res = await fetch(`${import.meta.env.VITE_BASE_URL}signin`, {
@@ -23,6 +25,7 @@ function SignIn() {
             if (!res.ok) throw new Error("Sign in failed")
             const data = await res.json()
             localStorage.setItem("token", data.token)
+            localStorage.setItem("expiry", String(Date.now() + tokenExpireIn))
             return data
         },
         onSuccess: () => {
