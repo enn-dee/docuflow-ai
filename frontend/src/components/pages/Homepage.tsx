@@ -1,36 +1,5 @@
 import { motion } from "motion/react"
 import { useNavigate } from "react-router-dom"
-// const Homepage = () => {
-//   return (
-//     <section>
-//       <div className="h-screen bg-gradient-to-r from-blue-400/80 to-slate-300 p-12 rounded-2xl text-center">
-//         <motion.div className="bg-white/10 rounded-md p-3 shadow-md border border-white/40"
-//           initial={{ backdropFilter: "blur(0)" }}
-//           whileInView={{ backdropFilter: "blur(50px)" }}
-//           transition={{ duration: .5, ease: "easeInOut" }}
-//         >
-
-//           <motion.h1 className="text-2xl font-stretch-75% md:text-4xl font-bold text-[#003049]/80 mb-4"
-//             initial={{ y: 100, opacity: 0 }}
-//             whileInView={{ y: 0, opacity: 1, transition: { duration: .8, ease: "easeInOut" } }}
-//           >
-//             Smarter Resumes. Better Careers.
-//           </motion.h1>
-//           <motion.p className="text-lg text-[#264653]/80 font-stretch-50%"
-//             initial={{ y: 100, opacity: 0 }}
-//             whileInView={{ y: 0, opacity: 1, transition: { duration: .8, ease: "easeInOut", delay: .3 }, }}
-//           >
-//             Upload your resume, match with job descriptions, and get instant ATS insights.
-//           </motion.p>
-
-//         </motion.div>
-//       </div>
-
-//     </section>
-//   )
-// }
-
-// export default Homepage
 
 export default function HomePage() {
   const navigate = useNavigate()
@@ -151,7 +120,7 @@ export default function HomePage() {
       </section>
 
       <footer className="px-12 py-8 text-center text-gray-600 border-t mt-12">
-        <p>&copy; {new Date().getFullYear()} AI Resume. Crafted with ❤️ by <a href="https://x.com/nadeems_twt">Nadeem</a>.</p>
+        <p>&copy; {new Date().getFullYear()} AI Resume. Crafted with ❤️ by <a href="https://x.com/nadeems_twt" target="_blank">Nadeem</a>.</p>
       </footer>
     </div>
   );

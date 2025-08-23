@@ -1,4 +1,3 @@
-
 import toast from "react-hot-toast"
 import { useNavigate } from "react-router-dom"
 import { Link } from "react-scroll";
@@ -18,7 +17,7 @@ const Navbar = () => {
     return (
 
         <header className="flex justify-between items-center px-8 py-4 shadow-sm">
-            <h1 className="text-2xl font-bold text-indigo-600" onClick={() => navigate("/")}>AI Resume</h1>
+            <h1 className="text-2xl font-bold text-indigo-600 hover:cursor-pointer" onClick={() => navigate("/")}>AI Resume</h1>
             {isAuth ?
                 undefined
                 :

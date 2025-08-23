@@ -2,6 +2,10 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "motion/react";
 import toast from "react-hot-toast";
+import Modal from "../layout/Modal";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Link, useNavigate } from "react-router-dom";
 
 interface Resume {
     id: number;
@@ -13,7 +17,7 @@ interface Resume {
 
 const fetchResumes = async (): Promise<Resume[]> => {
     const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:3000/api/pdf", {
+    const res = await fetch(`${import.meta.env.VITE_BASE_URL}pdf`, {
         headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error("Failed to fetch resumes");
@@ -24,11 +28,15 @@ const fetchResumes = async (): Promise<Resume[]> => {
 const Dashboard = () => {
     const queryClient = useQueryClient();
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    // const [isModalOpen, setIsModalOpen] = useState(false);
+    const navigate = useNavigate();
 
     const { data: resumes, isLoading } = useQuery({
         queryKey: ["resumes"],
         queryFn: fetchResumes,
     });
+
+
 
     const uploadMutation = useMutation({
         mutationFn: async () => {
@@ -37,7 +45,7 @@ const Dashboard = () => {
             formData.append("file-upload", selectedFile);
 
             const token = localStorage.getItem("token");
-            const res = await fetch("http://localhost:3000/api/upload", {
+            const res = await fetch(`${import.meta.env.VITE_BASE_URL}upload`, {
                 method: "POST",
                 body: formData,
                 headers: { Authorization: `Bearer ${token}` },
@@ -66,7 +74,7 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen px-6 md:px-12 py-12 bg-gradient-to-br from-indigo-50 via-white to-blue-50">
-            
+
             <motion.div
                 initial={{ y: -30, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -129,23 +137,33 @@ const Dashboard = () => {
                             <h3 className="font-semibold text-lg text-gray-800 truncate">
                                 {r.url.split("/").pop()}
                             </h3>
-                            <a href={r.url} target="blank">view Resume</a>
+                            <a href={r.url} target="blank" className="text-blue-700 hover:text-blue-500">view Resume</a>
                             <p className="mt-3">
                                 ATS Score:{" "}
                                 <span
                                     className={`font-bold ${r.atsScore
-                                            ? r.atsScore >= 70
-                                                ? "text-green-600"
-                                                : "text-yellow-600"
-                                            : "text-gray-400"
+                                        ? r.atsScore >= 70
+                                            ? "text-green-600"
+                                            : "text-yellow-600"
+                                        : "text-gray-400"
                                         }`}
                                 >
                                     {r.atsScore ?? "Not processed"}
                                 </span>
                             </p>
-                            <button className="mt-4 w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                            <button className="mt-4 w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                                onClick={() => navigate(`/pdf/${r.id}`)}
+                            >
                                 View Analysis
                             </button>
+
+                            {/* <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                                <div className="my-10 space-y-10">
+                                    <Input placeholder="Enter job description here" />
+                                    <Button>Process</Button>
+                                </div>
+                            </Modal> */}
+
                         </motion.div>
                     ))
                 ) : (
@@ -153,7 +171,7 @@ const Dashboard = () => {
                 )}
             </motion.div>
 
-        </div>
+        </div >
     );
 };
 
