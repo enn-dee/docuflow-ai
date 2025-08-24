@@ -1,4 +1,4 @@
-import { PrismaClient } from "../generated/prisma";
+import { PrismaClient } from "@generated/prisma";
 import logger from "../utility/logger"
 const prisma = new PrismaClient()
 type messageType={

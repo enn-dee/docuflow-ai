@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Signin = exports.Signup = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const logger_1 = __importDefault(require("../utility/logger"));
-const prisma_1 = require("../generated/prisma");
+const prisma_1 = require("@generated/prisma");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const process_env_1 = require("../config/process.env");
 const prisma = new prisma_1.PrismaClient();

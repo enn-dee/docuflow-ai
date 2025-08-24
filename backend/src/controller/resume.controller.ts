@@ -1,9 +1,9 @@
-import { NextFunction, Request, Response } from "express"
+import { NextFunction, Response } from "express"
 import  { upload } from "../config/CloudinaryConf";
 import fs from "fs"
 import path from "path"
 import logger from "../utility/logger";
-import { PrismaClient } from "../generated/prisma";
+import { PrismaClient } from "@generated/prisma";
 import { authRequest } from "../utility/authRequest";
 import axios from "axios";
 import { readPdf } from "../services/readPdf";

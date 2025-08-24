@@ -8,24 +8,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPdf = void 0;
+exports.pdfHistory = pdfHistory;
 const prisma_1 = require("@generated/prisma");
-const logger_1 = __importDefault(require("../utility/logger"));
 const prisma = new prisma_1.PrismaClient();
-const getPdf = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const pdfs = yield prisma.pdf.findMany({
-            where: { userId: id }
-        });
-        return { status: true, message: pdfs };
-    }
-    catch (err) {
-        logger_1.default.error("error in getpdf: ", err);
-        return { status: false };
-    }
-});
-exports.getPdf = getPdf;
+function pdfHistory(pdfId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            if (!pdfId) {
+                return { status: false, message: "Missing pdfId" };
+            }
+            const history = yield prisma.history.findMany({
+                where: { hId: pdfId },
+                orderBy: { AnalysedAt: "desc" }
+            });
+            return { status: true, data: history };
+        }
+        catch (error) {
+            return { status: false, message: `Error fetching history: ${error.message}` };
+        }
+    });
+}

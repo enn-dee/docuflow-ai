@@ -2,7 +2,7 @@ import fs from "fs"
 import askGroq from "../utility/GroqModel"
 import pdf from "pdf-parse"
 import logger from "../utility/logger"
-import { PrismaClient } from "../generated/prisma"
+import { PrismaClient } from "@generated/prisma"
 
 
 interface returnResponse{

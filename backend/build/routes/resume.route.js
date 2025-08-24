@@ -9,5 +9,7 @@ const authMiddleware_1 = require("../utility/authMiddleware");
 const router = express_1.default.Router();
 router.post("/upload", authMiddleware_1.authMiddleware, resume_controller_1.UploadPdf);
 router.get("/pdf", authMiddleware_1.authMiddleware, resume_controller_1.allPdfs);
-router.get("/pdf/:id", authMiddleware_1.authMiddleware, resume_controller_1.processPdf);
+router.post("/pdf/:id", authMiddleware_1.authMiddleware, resume_controller_1.processPdf);
+// pdf history
+router.get("/history/:id", authMiddleware_1.authMiddleware, resume_controller_1.getHistory);
 exports.default = router;

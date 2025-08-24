@@ -17,11 +17,16 @@ const fs_1 = __importDefault(require("fs"));
 const GroqModel_1 = __importDefault(require("../utility/GroqModel"));
 const pdf_parse_1 = __importDefault(require("pdf-parse"));
 const logger_1 = __importDefault(require("../utility/logger"));
-const readPdf = (filePath, jobDescription) => __awaiter(void 0, void 0, void 0, function* () {
+const prisma_1 = require("@generated/prisma");
+const prisma = new prisma_1.PrismaClient();
+const readPdf = (filePath, jobDescription, pdfIdf) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // const filePath = path.join(__dirname,`../../tmp/${filename}`)
         if (!fs_1.default.existsSync(filePath)) {
             return { status: false, message: "File not found" };
+        }
+        if (!pdfIdf) {
+            return { status: false, message: "Missing pdfId" };
         }
         const dataBuffer = fs_1.default.readFileSync(filePath);
         const data = yield (0, pdf_parse_1.default)(dataBuffer).then(response => {
@@ -30,6 +35,12 @@ const readPdf = (filePath, jobDescription) => __awaiter(void 0, void 0, void 0, 
         const aiRes = yield (0, GroqModel_1.default)(data, jobDescription);
         const result = JSON.parse(aiRes);
         logger_1.default.info(`ai res: ${result}`);
+        yield prisma.history.create({
+            data: {
+                history: result,
+                hId: pdfIdf
+            }
+        });
         return { status: true, message: result };
     }
     catch (error) {

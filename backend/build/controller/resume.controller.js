@@ -12,15 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.allPdfs = exports.processPdf = exports.UploadPdf = void 0;
+exports.getHistory = exports.allPdfs = exports.processPdf = exports.UploadPdf = void 0;
 const CloudinaryConf_1 = require("../config/CloudinaryConf");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const logger_1 = __importDefault(require("../utility/logger"));
-const prisma_1 = require("../generated/prisma");
+const prisma_1 = require("@generated/prisma");
 const axios_1 = __importDefault(require("axios"));
 const readPdf_1 = require("../services/readPdf");
 const getPdf_1 = require("../services/getPdf");
+const getHistory_1 = require("../services/getHistory");
 const prisma = new prisma_1.PrismaClient();
 const UploadPdf = (req, res, next) => {
     CloudinaryConf_1.upload.single("file-upload")(req, res, (err) => __awaiter(void 0, void 0, void 0, function* () {
@@ -80,7 +81,7 @@ const processPdf = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             response.data.on("error", reject);
             fileStream.on("finish", resolve);
         });
-        const ai_res = yield (0, readPdf_1.readPdf)(tempPath, jobDescription);
+        const ai_res = yield (0, readPdf_1.readPdf)(tempPath, jobDescription, pdfId);
         console.log(`ai response: ${ai_res}`);
         console.log(`PDF saved locally at ${tempPath}`);
         fs_1.default.unlink(tempPath, (err) => {
@@ -105,3 +106,18 @@ const allPdfs = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.json({ pdfs });
 });
 exports.allPdfs = allPdfs;
+const getHistory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const pdfId = parseInt(req.params.id);
+        const history = yield (0, getHistory_1.pdfHistory)(pdfId);
+        if (history.status == true) {
+            const { data } = history;
+            return res.status(200).json({ data });
+        }
+    }
+    catch (err) {
+        logger_1.default.error(`error in getHistory controller: ${err.message}`);
+        return res.status(500).json({ error: err.message });
+    }
+});
+exports.getHistory = getHistory;
