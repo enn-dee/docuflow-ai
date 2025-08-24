@@ -8,7 +8,7 @@ import { authRequest } from "../utility/authRequest";
 import axios from "axios";
 import { readPdf } from "../services/readPdf";
 import { getPdf } from "../services/getPdf";
-
+import { pdfHistory } from "../services/getHistory";
 
 
 
@@ -81,7 +81,7 @@ export const processPdf = async (req: authRequest, res: Response) => {
       fileStream.on("finish", resolve);
     });
 
-   const ai_res= await readPdf(tempPath, jobDescription)
+   const ai_res= await readPdf(tempPath, jobDescription, pdfId)
    console.log(`ai response: ${ai_res}`) 
    console.log(`PDF saved locally at ${tempPath}`);
 
@@ -106,5 +106,19 @@ export const allPdfs = async(req: authRequest, res:Response)=>{
   
   const pdfs = await getPdf(req.user?.userId)
   res.json({pdfs})
+}
 
+export const getHistory = async(req: authRequest, res:Response)=>{
+  try{
+
+    const pdfId = parseInt(req.params.id)
+    const history = await pdfHistory(pdfId)
+    if(history.status == true){
+      const {data} = history
+      return res.status(200).json({data})
+    }
+  }catch(err:any){
+    logger.error(`error in getHistory controller: ${err.message}`)
+    return res.status(500).json({error:err.message})
+  }
 }

@@ -17,13 +17,22 @@ datasource db {
 model User {
   id       Int    @id @default(autoincrement())
   username String @unique
-  password String 
-  pdfs Pdf[]
+  password String
+  pdfs     Pdf[]
 }
 
-model Pdf{
-  id Int @id @default(autoincrement())
-  url String
-  user User @relation(fields: [userId], references: [id])
-  userId Int
+model Pdf {
+  id      Int       @id @default(autoincrement())
+  url     String
+  user    User      @relation(fields: [userId], references: [id])
+  userId  Int
+  History History[]
+}
+
+model History {
+  id         Int      @id @default(autoincrement())
+  history    Json
+  pdf        Pdf      @relation(fields: [hId], references: [id])
+  hId        Int
+  AnalysedAt DateTime @default(now())
 }
