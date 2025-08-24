@@ -38,7 +38,6 @@ const Analyze = () => {
             }
 
             const data = await res.json();
-            console.log("json data: ", data);
             return data;
         },
         onSuccess: () => {
