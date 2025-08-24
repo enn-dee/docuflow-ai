@@ -4,21 +4,22 @@ import { groq_Key } from "../config/process.env";
 const GROQ_API_KEY = groq_Key;
 
 async function askGroq(resumeContent: string, jobDescription?: string) {
-  const prompt: string = `
+const prompt: string = `
 You are an Applicant Tracking System (ATS) and professional resume coach.
 Analyze the resume and job description.
-Return ONLY valid JSON — no explanation, no extra text :
+Return ONLY valid JSON — no explanations, no extra text, no percentages, no fractions.
 
 Your tasks:
-1. Evaluate the following resume against the provided job description.
-2. Give an ATS compatibility score from 0 to 100.
+1. Evaluate the resume against the job description.
+2. Give an ATS compatibility score as an integer from 0 to 100.
 3. List 5–10 missing or weak keywords.
 4. Suggest 3–5 improvements.
 5. Rewrite 2–3 weak bullet points.
 
-Format your output as:
+Format your output as strict JSON:
+
 {
-  "ATS_Score": [score]/100,
+  "ATS_Score": number,
   "missingKeywords": ["string", "string"],
   "improvements": ["string", "string"],
   "improvedBulletPoints": [
@@ -32,6 +33,7 @@ ${resumeContent}
 Job Description:
 ${jobDescription || ""}
 `;
+
 
   try {
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
