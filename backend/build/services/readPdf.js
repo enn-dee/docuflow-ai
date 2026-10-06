@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -19,7 +10,7 @@ const pdf_parse_1 = __importDefault(require("pdf-parse"));
 const logger_1 = __importDefault(require("../utility/logger"));
 const prisma_1 = require("@generated/prisma");
 const prisma = new prisma_1.PrismaClient();
-const readPdf = (filePath, jobDescription, pdfIdf) => __awaiter(void 0, void 0, void 0, function* () {
+const readPdf = async (filePath, jobDescription, pdfIdf) => {
     try {
         // const filePath = path.join(__dirname,`../../tmp/${filename}`)
         if (!fs_1.default.existsSync(filePath)) {
@@ -29,15 +20,19 @@ const readPdf = (filePath, jobDescription, pdfIdf) => __awaiter(void 0, void 0, 
             return { status: false, message: "Missing pdfId" };
         }
         const dataBuffer = fs_1.default.readFileSync(filePath);
-        const data = yield (0, pdf_parse_1.default)(dataBuffer).then(response => {
+        const data = await (0, pdf_parse_1.default)(dataBuffer).then(response => {
             return String(response.text);
         });
-        const aiRes = yield (0, GroqModel_1.default)(data, jobDescription);
+        const aiRes = await (0, GroqModel_1.default)(data, jobDescription);
+        if (!aiRes) {
+            return { status: false, message: "AI service returned no response" };
+        }
         const result = JSON.parse(aiRes);
-        logger_1.default.info(`ai res: ${result}`);
-        yield prisma.history.create({
+        logger_1.default.info(`ai res: ${JSON.stringify(result)}`);
+        await prisma.history.create({
             data: {
                 history: result,
+                jobDescription,
                 hId: pdfIdf
             }
         });
@@ -47,5 +42,5 @@ const readPdf = (filePath, jobDescription, pdfIdf) => __awaiter(void 0, void 0, 
         logger_1.default.error("error in read pdf func: ", error);
         return { status: false, message: `something went wrong: ${error}` };
     }
-});
+};
 exports.readPdf = readPdf;

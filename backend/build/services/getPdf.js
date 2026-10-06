@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -16,16 +7,30 @@ exports.getPdf = void 0;
 const prisma_1 = require("@generated/prisma");
 const logger_1 = __importDefault(require("../utility/logger"));
 const prisma = new prisma_1.PrismaClient();
-const getPdf = (id) => __awaiter(void 0, void 0, void 0, function* () {
+const getPdf = async (id) => {
     try {
-        const pdfs = yield prisma.pdf.findMany({
-            where: { userId: id }
+        const pdfs = await prisma.pdf.findMany({
+            where: { userId: id },
+            orderBy: { createdAt: "desc" },
+            include: {
+                History: {
+                    orderBy: { AnalysedAt: "desc" },
+                    take: 1
+                }
+            }
         });
-        return { status: true, message: pdfs };
+        const withScore = pdfs.map((p) => ({
+            id: p.id,
+            url: p.url,
+            userId: p.userId,
+            createdAt: p.createdAt,
+            latestScore: p.History[0]?.history?.ATS_Score ?? null,
+        }));
+        return { status: true, message: withScore };
     }
     catch (err) {
         logger_1.default.error("error in getpdf: ", err);
         return { status: false };
     }
-});
+};
 exports.getPdf = getPdf;

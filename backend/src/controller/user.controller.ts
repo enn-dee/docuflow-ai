@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { authRequest } from "../utility/authRequest";
 import bcrypt from "bcryptjs"
 import logger from "../utility/logger";
 import { PrismaClient } from "@generated/prisma";
@@ -41,6 +42,9 @@ export const Signup = async (req: Request, res: Response) => {
 export const Signin = async(req:Request, res:Response)=>{
     try{
         const {username, password} = req.body
+        if (!username || !password) {
+            return res.status(400).json({error:"Username and password are required"})
+        }
 
         const existingUser = await prisma.user.findUnique({
             where:{username}
@@ -67,3 +71,19 @@ export const Signin = async(req:Request, res:Response)=>{
         return res.status(500).json({error:err.message})
     }
 }
+
+export const me = async (req: authRequest, res: Response) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: req.user?.userId },
+            select: { id: true, username: true, createdAt: true, _count: { select: { pdfs: true } } },
+        });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        return res.status(200).json({ user });
+    } catch (err: any) {
+        logger.error(`error in /me: ${err.message}`);
+        return res.status(500).json({ error: "Server error" });
+    }
+};

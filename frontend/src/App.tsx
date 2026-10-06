@@ -10,27 +10,24 @@ import Dashboard from "./components/pages/Dashboard"
 import Analyze from "./components/pages/Analyze"
 import { useEffect } from "react"
 
+const queryClient = new QueryClient()
+
 function App() {
   const navigate = useNavigate()
 
-  const queryClient = new QueryClient()
   useEffect(() => {
     const expiry = localStorage.getItem("expiry")
     if (expiry && Date.now() > Number(expiry)) {
-      logoutUser()
+      localStorage.removeItem("token")
+      localStorage.removeItem("expiry")
+      navigate("/")
     }
-  }, [])
-
-  function logoutUser() {
-    localStorage.removeItem("token")
-    localStorage.removeItem("expiry")
-    navigate("/")
-  }
+  }, [navigate])
   return (
     <QueryClientProvider client={queryClient}>
 
       <Toaster position="top-right" reverseOrder={false} />
-      <div className="min-h-screen bg-[#dee2e6]">
+      <div className="min-h-screen bg-slate-950 text-slate-100">
         <Navbar />
         <Routes>
           <Route path="/" element={<Homepage />} />

@@ -19,12 +19,15 @@ model User {
   username String @unique
   password String
   pdfs     Pdf[]
+  createdAt DateTime @default(now())
 }
 
 model Pdf {
   id      Int       @id @default(autoincrement())
   url     String
-  user    User      @relation(fields: [userId], references: [id])
+  filename String  @default("")
+  createdAt DateTime @default(now())
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  Int
   History History[]
 }
@@ -32,7 +35,8 @@ model Pdf {
 model History {
   id         Int      @id @default(autoincrement())
   history    Json
-  pdf        Pdf      @relation(fields: [hId], references: [id])
+  jobDescription String?
+  pdf        Pdf      @relation(fields: [hId], references: [id], onDelete: Cascade)
   hId        Int
   AnalysedAt DateTime @default(now())
 }

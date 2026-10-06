@@ -3,7 +3,7 @@ import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { motion } from "motion/react"
 import toast from "react-hot-toast"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 function Signup() {
@@ -14,7 +14,7 @@ function Signup() {
 
   const mutation = useMutation({
     mutationFn: async ({ username, password }: { username: string; password: string }) => {
-      const res = await fetch(import.meta.env.VITE_BASE_URL+"signup", {
+      const res = await fetch(import.meta.env.VITE_BASE_URL + "signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -29,7 +29,7 @@ function Signup() {
       queryClient.invalidateQueries({ queryKey: ["users"] })
       navigate("/signin")
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err.message || "Something went wrong")
     },
   })
@@ -43,76 +43,52 @@ function Signup() {
 
   return (
     <motion.section
-      className="min-h-screen flex items-center justify-center 
-        bg-gradient-to-br from-indigo-700 via-purple-700 to-pink-600
-        px-6 py-12"
-    >
-      <div className="w-full max-w-6xl flex flex-col md:flex-row items-center gap-10">
+      className="min-h-screen flex items-center justify-center bg-slate-950 px-6 py-12 relative overflow-hidden">
+      <div className="absolute -top-24 -left-24 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl" />
+      <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl" />
+      <div className="w-full max-w-6xl flex flex-col md:flex-row items-center gap-10 relative">
 
-        {/*  Illustration + tagline */}
         <motion.div
           className="flex-1 text-white text-center md:text-left space-y-6"
-          initial={{ opacity: 0, x: -80 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
-        >
-          <img src="/career-progress.svg" alt="Career Growth" className="w-2/3 mx-auto md:mx-0 hidden md:flex" />
-          <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
+          initial={{ opacity: 0, x: -60 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
+          <img src="/career-progress.svg" alt="Career Growth" className="w-2/3 mx-auto md:mx-0 hidden md:block" />
+          <h1 className="text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
             Unlock Your Future <br />
-            <span className="text-yellow-300">With Smarter Resumes</span>
+            <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">With Smarter Resumes</span>
           </h1>
-          <p className="text-lg text-gray-200 max-w-md">
-            Join our platform today and get access to AI-powered tools that help you land your dream job.
+          <p className="text-lg text-slate-400 max-w-md">
+            Join today and get access to AI-powered tools that help you land your dream job.
           </p>
         </motion.div>
 
-        {/* Signup form */}
         <motion.form
           onSubmit={handleSubmit}
-          className="flex-1 bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-8 space-y-6"
-          initial={{ opacity: 0, x: 80 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
-        >
-          <h2 className="text-2xl font-bold text-gray-800 text-center">Create Account</h2>
-          <p className="text-center text-gray-500">Start building smarter resumes today 🚀</p>
+          className="flex-1 w-full bg-slate-900/80 border border-white/10 backdrop-blur-xl rounded-2xl shadow-2xl p-8 space-y-6"
+          initial={{ opacity: 0, x: 60 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
+          <h2 className="text-2xl font-bold text-slate-100 text-center">Create Account</h2>
+          <p className="text-center text-slate-500 text-sm">Start building smarter resumes today 🚀</p>
 
           <div className="space-y-1.5">
-            <Label htmlFor="username" className="text-gray-700 font-medium">Username</Label>
-            <Input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              id="username"
-              placeholder="Choose a username"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
+            <Label htmlFor="username" className="text-slate-300 font-medium">Username</Label>
+            <Input value={username} onChange={(e) => setUsername(e.target.value)} id="username" placeholder="Choose a username"
+              className="w-full bg-slate-800/60 border-white/10 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-500" />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
-            <Input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-            <p className="text-sm text-gray-500">Must be at least 6 characters</p>
+            <Label htmlFor="password" className="text-slate-300 font-medium">Password</Label>
+            <Input value={password} onChange={(e) => setPassword(e.target.value)} id="password" type="password" placeholder="••••••••"
+              className="w-full bg-slate-800/60 border-white/10 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-500" />
+            <p className="text-sm text-slate-600">Must be at least 6 characters</p>
           </div>
 
-          <button
-            type="submit"
-            disabled={mutation.isPending || !username || password.length < 6}
-            className="w-full rounded-md bg-indigo-600 hover:bg-indigo-700 
-              px-4 py-2 text-white font-medium transition disabled:opacity-50"
-          >
+          <button type="submit" disabled={mutation.isPending || !username || password.length < 6}
+            className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 text-white font-semibold transition shadow-lg shadow-indigo-500/25 disabled:opacity-50">
             {mutation.isPending ? "Signing up..." : "Sign Up"}
           </button>
 
-          <p className="text-center text-gray-600">
+          <p className="text-center text-slate-500 text-sm">
             Already have an account?{" "}
-            <a href="/signin" className="text-indigo-600 underline hover:text-indigo-800">Signin</a>
+            <Link to="/signin" className="text-indigo-400 hover:underline">Sign in</Link>
           </p>
         </motion.form>
       </div>

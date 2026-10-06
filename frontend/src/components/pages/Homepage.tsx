@@ -1,126 +1,89 @@
 import { motion } from "motion/react"
 import { useNavigate } from "react-router-dom"
+import { Sparkles, CheckCircle2, Target } from "lucide-react"
 
 export default function HomePage() {
   const navigate = useNavigate()
-
   const isAuth = localStorage.getItem("token")
 
   const takeHome = () => {
-    isAuth ? navigate("/home") : navigate("/signin")
+    if (isAuth) {
+      navigate("/home")
+    } else {
+      navigate("/signin")
+    }
   }
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-blue-50 to-white text-gray-800">
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
 
-      <section className="flex flex-col md:flex-row items-center justify-between px-12 py-20" id="hero">
-        <div className="max-w-xl" >
-          <motion.h2 className="text-5xl font-extrabold leading-tight text-gray-900"
-            initial={{ x: 100, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1, transition: { duration: .8, ease: "easeInOut" } }}
-          >
-            Smarter Resumes. <br /> <motion.span
-              initial={{ x: 100, opacity: 0 }}
-              whileInView={{ x: 0, opacity: 1, transition: { duration: .8, ease: "easeInOut", delay: .3 } }}
-            > Better Careers.</motion.span>
+      <section className="relative flex flex-col md:flex-row items-center justify-between px-12 py-24 overflow-hidden" id="hero">
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl" />
+        <div className="absolute top-20 right-0 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl" />
+        <div className="max-w-xl relative">
+          <motion.p className="text-indigo-400 font-semibold mb-4 tracking-wide text-sm uppercase"
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>AI-Powered Resume Intelligence</motion.p>
+          <motion.h2 className="text-5xl font-extrabold leading-tight tracking-tight"
+            initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1, transition: { duration: .6 } }}>
+            Smarter Resumes. <br /> <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">Better Careers.</span>
           </motion.h2>
-          <p className="mt-4 text-lg text-gray-600">
+          <p className="mt-5 text-lg text-slate-400">
             Upload your resume and let AI optimize it for ATS, recruiters, and job success.
           </p>
-          <motion.button className="mt-6 px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow"
-            // initial={{ filter: "blur(14px)" }}
-            // whileInView={{ filter: "blur(0)" }}
-            // transition={{ duration: 1, ease: "easeInOut" }}
-            onClick={takeHome}
-          >
-            {isAuth ? "Dashboard" : " Get Started Free"}
+          <motion.button className="mt-8 px-8 py-3.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 shadow-lg shadow-indigo-500/30 transition font-semibold"
+            whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+            onClick={takeHome}>
+            {isAuth ? "Go to Dashboard" : "Get Started Free"}
           </motion.button>
         </div>
-        <motion.img
-          src="/job-hunt.svg"
-          alt="Resume Illustration"
-          className="w-96 mt-10 md:mt-0"
-          initial={{ x: -100, opacity: 0 }}
-          whileInView={{ x: 0, opacity: 1, transition: { duration: .8, ease: "easeInOut" } }}
-        />
+        <motion.img src="/job-hunt.svg" alt="Resume Illustration" className="w-96 mt-10 md:mt-0 drop-shadow-2xl"
+          initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1, transition: { duration: .7 } }} />
       </section>
 
-      <section className="px-12 py-16 bg-indigo-50" id="features">
-        <motion.h3 className="text-3xl font-bold text-center mb-10"
-          initial={{ filter: "blur(20px)" }}
-          whileInView={{ filter: "blur(0)" }}
-          transition={{ duration: 1, ease: "easeInOut" }}
-        >Why Choose Us?</motion.h3>
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="bg-white shadow p-6 rounded-2xl text-center">
-            <svg className="w-12 h-12 mx-auto text-indigo-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M12 4v16m8-8H4" />
-            </svg>
-
-            <h4 className="mt-4 font-semibold">AI-Powered Insights</h4>
-            <p className="text-gray-600 mt-2">Get personalized recommendations for improving your resume.</p>
-          </div>
-          <div className="bg-white shadow p-6 rounded-2xl text-center">
-            <svg className="w-12 h-12 mx-auto text-indigo-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M5 13l4 4L19 7" />
-            </svg>
-            <h4 className="mt-4 font-semibold">ATS-Friendly Format</h4>
-            <p className="text-gray-600 mt-2">Ensure your resume passes recruiter screening systems.</p>
-          </div>
-          <div className="bg-white shadow p-6 rounded-2xl text-center">
-            <svg className="w-12 h-12 mx-auto text-indigo-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M12 8c-1.1 0-2 .9-2 2v6m4-6c0-1.1-.9-2-2-2z" />
-            </svg>
-            <h4 className="mt-4 font-semibold">Job Match Score</h4>
-            <p className="text-gray-600 mt-2">Compare your resume against job descriptions instantly.</p>
-          </div>
+      <section className="px-12 py-20 bg-slate-900/50 border-y border-white/5" id="features">
+        <motion.h3 className="text-3xl font-bold text-center mb-12 tracking-tight"
+          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: .6 }}
+          viewport={{ once: true }}>Why Choose DocuFlow?</motion.h3>
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          {[
+            { icon: <Sparkles className="w-6 h-6 text-indigo-400" />, title: "AI-Powered Insights", desc: "Get personalized recommendations for improving your resume." },
+            { icon: <CheckCircle2 className="w-6 h-6 text-emerald-400" />, title: "ATS-Friendly", desc: "Ensure your resume passes recruiter screening systems." },
+            { icon: <Target className="w-6 h-6 text-violet-400" />, title: "Job Match Score", desc: "Compare your resume against job descriptions instantly." },
+          ].map((f) => (
+            <motion.div key={f.title} whileHover={{ y: -6 }} className="bg-slate-900 border border-white/5 shadow-xl p-7 rounded-2xl text-center">
+              <div className="w-12 h-12 mx-auto bg-slate-800 rounded-xl flex items-center justify-center">{f.icon}</div>
+              <h4 className="mt-4 font-semibold text-lg">{f.title}</h4>
+              <p className="text-slate-400 mt-2 text-sm">{f.desc}</p>
+            </motion.div>
+          ))}
         </div>
       </section>
 
       <section className="px-12 py-20" id="how-it-works">
-        <h3 className="text-3xl font-bold text-center mb-12">How It Works</h3>
-        <div className="grid md:grid-cols-3 gap-8 text-center">
-          <div>
-            <div className="w-16 h-16 mx-auto bg-indigo-100 rounded-full flex items-center justify-center">
-              <span className="text-indigo-600 font-bold text-xl">1</span>
+        <h3 className="text-3xl font-bold text-center mb-14 tracking-tight">How It Works</h3>
+        <div className="grid md:grid-cols-3 gap-8 text-center max-w-5xl mx-auto">
+          {["Upload Resume", "AI Analysis", "Get Optimized"].map((t, i) => (
+            <div key={t}>
+              <div className="w-16 h-16 mx-auto rounded-full bg-indigo-600/15 border border-indigo-500/30 flex items-center justify-center">
+                <span className="text-indigo-400 font-bold text-xl">{i + 1}</span>
+              </div>
+              <h4 className="mt-5 font-semibold text-lg">{t}</h4>
+              <p className="text-slate-400 mt-1 text-sm">{["Start by uploading your existing resume.", "Our AI scans and scores your resume instantly.", "Receive suggestions to make your resume recruiter-ready."][i]}</p>
             </div>
-            <h4 className="mt-4 font-semibold">Upload Resume</h4>
-            <p className="text-gray-600">Start by uploading your existing resume.</p>
-          </div>
-          <div>
-            <div className="w-16 h-16 mx-auto bg-indigo-100 rounded-full flex items-center justify-center">
-              <span className="text-indigo-600 font-bold text-xl">2</span>
-            </div>
-            <h4 className="mt-4 font-semibold">AI Analysis</h4>
-            <p className="text-gray-600">Our AI scans and scores your resume instantly.</p>
-          </div>
-          <div>
-            <div className="w-16 h-16 mx-auto bg-indigo-100 rounded-full flex items-center justify-center">
-              <span className="text-indigo-600 font-bold text-xl">3</span>
-            </div>
-            <h4 className="mt-4 font-semibold">Get Optimized</h4>
-            <p className="text-gray-600">Receive suggestions to make your resume recruiter-ready.</p>
-          </div>
+          ))}
         </div>
       </section>
 
-
-      <section className="px-12 py-20 bg-indigo-600 text-white text-center" id="cta">
-        <motion.h3 className="text-4xl font-bold"
-          initial={{ skewX: 90, opacity: 0 }}
-          whileInView={{ skewX: 0, opacity: 1 }}
-          transition={{ duration: 1, ease: [0.68, -0.55, 0.27, 1.55] }}
-          viewport={{ once: true }}
-        >Ready to Land Your Dream Job?</motion.h3>
-        <p className="mt-4 text-lg">Let AI help you build the perfect resume today.</p>
-        <button className="mt-6 px-8 py-3 bg-white text-indigo-600 font-semibold rounded-xl hover:bg-gray-100"
-          onClick={takeHome}
-        >
-          Get Started
-        </button>
+      <section className="mx-12 mb-16 rounded-3xl py-20 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-center shadow-2xl shadow-indigo-500/20" id="cta">
+        <motion.h3 className="text-4xl font-extrabold tracking-tight"
+          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: .6 }}
+          viewport={{ once: true }}>Ready to Land Your Dream Job?</motion.h3>
+        <p className="mt-4 text-indigo-100">Let AI help you build the perfect resume today.</p>
+        <button className="mt-8 px-8 py-3.5 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition"
+          onClick={takeHome}>Get Started</button>
       </section>
 
-      <footer className="px-12 py-8 text-center text-gray-600 border-t mt-12">
-        <p>&copy; {new Date().getFullYear()} AI Resume. Crafted with ❤️ by <a href="https://x.com/nadeems_twt" target="_blank">Nadeem</a>.</p>
+      <footer className="px-12 py-8 text-center text-slate-500 border-t border-white/5 text-sm">
+        <p>&copy; {new Date().getFullYear()} DocuFlow AI. Crafted with care by <a href="https://x.com/nadeems_twt" target="_blank" className="text-indigo-400 hover:underline">Nadeem</a>.</p>
       </footer>
     </div>
   );

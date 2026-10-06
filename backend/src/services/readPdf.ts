@@ -7,7 +7,7 @@ import { PrismaClient } from "@generated/prisma"
 
 interface returnResponse{
 status:boolean,
-message: string,
+message: any,
 }
 const prisma = new PrismaClient()
 
@@ -30,12 +30,16 @@ export const readPdf = async(filePath:string, jobDescription: string, pdfIdf: nu
         })
 
         const aiRes = await askGroq(data,jobDescription )
+        if (!aiRes) {
+            return {status:false, message:"AI service returned no response"}
+        }
         const result = JSON.parse(aiRes)
-        logger.info(`ai res: ${result}`)
+        logger.info(`ai res: ${JSON.stringify(result)}`)
 
         await prisma.history.create({
             data:{
                 history:result,
+                jobDescription,
                 hId:pdfIdf
             }
         })

@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ArrowLeft, FileText, History } from "lucide-react";
@@ -13,6 +13,18 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import toast from "react-hot-toast";
+
+interface HistoryEntry {
+    id: number;
+    AnalysedAt: string;
+    history: {
+        ATS_Score: number;
+        improvements: string[];
+        missingKeywords: string[];
+        improvedBulletPoints: { old: string; new: string }[];
+    } | null;
+    jobDescription?: string | null;
+}
 
 const Analyze = () => {
     const token = localStorage.getItem("token");
@@ -38,14 +50,17 @@ const Analyze = () => {
             }
 
             const data = await res.json();
+            if (data?.message && data.message.status === false) {
+                throw new Error(data.message.message || "Processing failed");
+            }
             return data;
         },
         onSuccess: () => {
             setJobDesc("");
             toast.success("Resume processed ✅");
-            queryClient.invalidateQueries({ queryKey: ["history"] });
+            queryClient.invalidateQueries({ queryKey: ["history", id] });
         },
-        onError: (err: any) => {
+        onError: (err: Error) => {
             toast.error(err.message || "Something went wrong");
         },
     });
@@ -70,7 +85,7 @@ const Analyze = () => {
     });
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col items-center p-8">
+        <div className="min-h-screen bg-slate-950 flex flex-col items-center p-8">
 
             <motion.div
                 initial={{ x: -50, opacity: 0 }}
@@ -80,7 +95,7 @@ const Analyze = () => {
             >
                 <Button
                     variant="ghost"
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 text-slate-400 hover:text-white hover:bg-white/5"
                     onClick={() => navigate(-1)}
                 >
                     <ArrowLeft className="h-4 w-4" />
@@ -94,17 +109,17 @@ const Analyze = () => {
                 transition={{ type: "spring", stiffness: 100, damping: 15 }}
                 className="w-full max-w-5xl"
             >
-                <Card className="shadow-lg rounded-2xl border border-gray-200 bg-white">
+                <Card className="bg-slate-900/80 border border-white/10 rounded-2xl shadow-2xl text-slate-100">
                     <CardHeader className="flex flex-col items-center gap-3">
                         <motion.div
                             initial={{ scale: 0.8, rotate: -10, opacity: 0 }}
                             animate={{ scale: 1, rotate: 0, opacity: 1 }}
                             transition={{ delay: 0.2, type: "spring" }}
-                            className="p-4 bg-blue-100 rounded-full"
+                            className="p-4 bg-indigo-600/20 border border-indigo-500/30 rounded-full"
                         >
-                            <FileText className="h-10 w-10 text-blue-600" />
+                            <FileText className="h-10 w-10 text-indigo-400" />
                         </motion.div>
-                        <CardTitle className="text-2xl font-semibold text-gray-800">
+                        <CardTitle className="text-2xl font-bold text-slate-100">
                             Analyze Resume
                         </CardTitle>
                     </CardHeader>
@@ -115,9 +130,9 @@ const Analyze = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.3 }}
-                            className="text-center text-lg font-medium text-gray-700"
+                            className="text-center text-lg font-medium text-slate-400"
                         >
-                            Resume ID: <span className="font-bold text-blue-600">{id}</span>
+                            Resume ID: <span className="font-bold text-indigo-400">{id}</span>
                         </motion.h1>
 
 
@@ -127,14 +142,14 @@ const Analyze = () => {
                             transition={{ delay: 0.4 }}
                             className="space-y-3"
                         >
-                            <label className="text-sm font-medium text-gray-600">
+                            <label className="text-sm font-medium text-slate-500">
                                 Paste Job Description
                             </label>
                             <Textarea
                                 placeholder="Enter job description here..."
                                 value={jobDescription}
                                 onChange={(e) => setJobDesc(e.target.value)}
-                                className="min-h-[120px]"
+                                className="min-h-[120px] bg-slate-800/60 border-white/10 text-slate-100 placeholder:text-slate-600"
                             />
                         </motion.div>
 
@@ -146,14 +161,13 @@ const Analyze = () => {
                             className="w-full flex justify-center"
                         >
                             <Button
-                                className="px-6 py-2 rounded-xl text-lg"
+                                className="px-6 py-2.5 rounded-xl text-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/25"
                                 disabled={jobDescription.length < 10 || processResumeMutate.isPending}
                                 onClick={() => {
-                                    processResumeMutate.mutate({
-                                        jobDescription
-                                    })
-                                    processResumeMutate.isPending ? toast.loading("Analyzing...") : ""
-
+                                    toast.loading("Analyzing...", { id: "analyze" });
+                                    processResumeMutate.mutate({ jobDescription }, {
+                                        onSettled: () => toast.dismiss("analyze"),
+                                    });
                                 }}
 
                             >
@@ -169,32 +183,32 @@ const Analyze = () => {
                             className="mt-10"
                         >
                             <div className="flex items-center gap-2 mb-4">
-                                <History className="h-5 w-5 text-gray-600" />
-                                <h2 className="text-lg font-semibold text-gray-700">
+                                <History className="h-5 w-5 text-slate-500" />
+                                <h2 className="text-lg font-semibold text-slate-200">
                                     Previous Analysis
                                 </h2>
                             </div>
 
                             {isLoading ? (
-                                <p className="text-gray-500">Loading history...</p>
+                                <p className="text-slate-600">Loading history...</p>
                             ) : data?.length ? (
                                 <Accordion type="single" collapsible className="w-full space-y-3">
-                                    {data.map((entry: any) => {
+                                    {data.map((entry: HistoryEntry) => {
                                         if (!entry.history) return null;
 
                                         return (
-                                            <AccordionItem key={entry.id} value={`entry-${entry.id}`}>
+                                            <AccordionItem key={entry.id} value={`entry-${entry.id}`} className="bg-slate-900/60 border border-white/5 rounded-xl px-4">
                                                 <AccordionTrigger className="text-sm font-medium flex justify-between w-full">
                                                     <div className="flex items-center gap-3">
                                                         <span
                                                             className={`px-3 py-1 rounded-full text-white text-xs ${entry.history.ATS_Score >= 70
-                                                                ? "bg-green-500"
-                                                                : "bg-red-500"
+                                                                ? "bg-emerald-600"
+                                                                : "bg-red-600"
                                                                 }`}
                                                         >
                                                             {entry.history.ATS_Score}%
                                                         </span>
-                                                        <span className="text-gray-700">
+                                                        <span className="text-slate-400">
                                                             Analyzed at{" "}
                                                             {new Date(entry.AnalysedAt).toLocaleString()}
                                                         </span>
@@ -205,14 +219,20 @@ const Analyze = () => {
                                                         initial={{ opacity: 0 }}
                                                         animate={{ opacity: 1 }}
                                                         transition={{ duration: 0.3 }}
-                                                        className="p-4 rounded-xl bg-gray-50 shadow-sm border border-gray-200 space-y-4"
+                                                        className="p-4 rounded-xl bg-slate-800/50 border border-white/5 space-y-4"
                                                     >
 
+                                                        {entry.jobDescription && (
+                                                            <div>
+                                                                <h4 className="text-sm font-semibold text-slate-300">Job Description:</h4>
+                                                                <p className="text-sm text-slate-500 mt-1 line-clamp-3">{entry.jobDescription}</p>
+                                                            </div>
+                                                        )}
                                                         <div>
-                                                            <h4 className="text-sm font-semibold text-gray-700">
+                                                            <h4 className="text-sm font-semibold text-slate-300">
                                                                 Suggested Improvements:
                                                             </h4>
-                                                            <ul className="list-disc list-inside text-sm text-gray-600 mt-1">
+                                                            <ul className="list-disc list-inside text-sm text-slate-400 mt-1">
                                                                 {entry.history.improvements.map(
                                                                     (imp: string, i: number) => (
                                                                         <li key={i}>{imp}</li>
@@ -223,7 +243,7 @@ const Analyze = () => {
 
 
                                                         <div>
-                                                            <h4 className="text-sm font-semibold text-gray-700">
+                                                            <h4 className="text-sm font-semibold text-slate-300">
                                                                 Missing Keywords:
                                                             </h4>
                                                             <div className="flex flex-wrap gap-2 mt-1">
@@ -231,7 +251,7 @@ const Analyze = () => {
                                                                     (kw: string, i: number) => (
                                                                         <span
                                                                             key={i}
-                                                                            className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded-md"
+                                                                            className="px-2 py-1 text-xs bg-amber-500/15 text-amber-400 border border-amber-500/20 rounded-md"
                                                                         >
                                                                             {kw}
                                                                         </span>
@@ -242,27 +262,27 @@ const Analyze = () => {
 
 
                                                         <div>
-                                                            <h4 className="text-sm font-semibold text-gray-700">
+                                                            <h4 className="text-sm font-semibold text-slate-300">
                                                                 Improved Bullet Points:
                                                             </h4>
                                                             <div className="space-y-3 mt-2">
                                                                 {entry.history.improvedBulletPoints.map(
-                                                                    (bp: any, i: number) => (
+                                                                    (bp: { old: string; new: string }, i: number) => (
                                                                         <div
                                                                             key={i}
                                                                             className="grid grid-cols-2 gap-4 text-sm"
                                                                         >
-                                                                            <div className="p-3 rounded-md bg-red-50 border border-red-200">
-                                                                                <p className="text-gray-700 font-medium">
+                                                                            <div className="p-3 rounded-md bg-red-500/5 border border-red-500/20">
+                                                                                <p className="text-slate-300 font-medium">
                                                                                     Old:
                                                                                 </p>
-                                                                                <p className="text-gray-600">{bp.old}</p>
+                                                                                <p className="text-slate-400">{bp.old}</p>
                                                                             </div>
-                                                                            <div className="p-3 rounded-md bg-green-50 border border-green-200">
-                                                                                <p className="text-gray-700 font-medium">
+                                                                            <div className="p-3 rounded-md bg-emerald-500/5 border border-emerald-500/20">
+                                                                                <p className="text-slate-300 font-medium">
                                                                                     New:
                                                                                 </p>
-                                                                                <p className="text-gray-600">{bp.new}</p>
+                                                                                <p className="text-slate-400">{bp.new}</p>
                                                                             </div>
                                                                         </div>
                                                                     )
@@ -278,7 +298,7 @@ const Analyze = () => {
                                 </Accordion>
 
                             ) : (
-                                <p className="text-gray-500">No history available.</p>
+                                <p className="text-slate-600">No history available.</p>
                             )}
                         </motion.div>
                     </CardContent>

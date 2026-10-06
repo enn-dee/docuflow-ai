@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import { groq_Key } from "../config/process.env";
 
 const GROQ_API_KEY = groq_Key;
@@ -43,7 +42,7 @@ ${jobDescription || ""}
         "Authorization": `Bearer ${GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: "llama3-70b-8192",
+        model: "openai/gpt-oss-120b",
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" }
       })
